@@ -1,0 +1,39 @@
+# Virtual Environment
+.venv/
+env/
+venv/
+
+# IDE Configuration
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Build Files
+*.spec
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Data Files (if not needed for version control)
+*.xlsx
+*.csv
+*.sqlite
+
+# Log Files
+*.log
+
+# Temporary Files
+.trae/
+*.~*
