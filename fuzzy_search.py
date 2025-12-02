@@ -1,5 +1,6 @@
+# 导入需要使用的模块
 import json
-import re
+import re        # 正则表达模块，用于 对文字信息完整匹配。
 
 def load_qualification_data():
     """加载资质数据"""
