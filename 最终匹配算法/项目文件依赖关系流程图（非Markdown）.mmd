@@ -1,0 +1,153 @@
+# 项目文件依赖关系流程图（排除Markdown文件）
+
+```mermaid
+graph TD
+    %% 数据层
+    subgraph 数据层
+        A[zivi_data.xlsx] --> B[update_qualification_data.py]
+        B --> C[qualification_data.json]
+    end
+
+    %% 核心功能层
+    subgraph 核心功能层
+        C --> D[fuzzy_search.py]
+        C --> E[qualification_matcher.py]
+        D --> E
+    end
+
+    %% 应用层
+    subgraph 应用层
+        E --> F[app.py]
+        D --> F
+        F --> G[index.html]
+        F --> H[verify.html]
+    end
+
+    %% 测试层
+    subgraph 测试层
+        E --> I[test_new_algorithm.py]
+        E --> J[test_optimized_algorithm.py]
+        E --> K[test_5_qualifications.py]
+        E --> L[test_9_qualifications.py]
+        E --> M[test_single_qualification.py]
+        E --> N[test_final_verification.py]
+        E --> O[test_optimization.py]
+        E --> P[test_user_input.py]
+        E --> Q[test_3_qualifications.py]
+        D --> I
+        D --> J
+        D --> K
+        D --> L
+        D --> M
+        D --> N
+        D --> O
+        D --> P
+        D --> Q
+    end
+
+    %% 辅助工具
+    subgraph 辅助工具
+        R[check_quals.py]
+        S[explain_5_qualifications.py]
+        T[first_do.py]
+    end
+
+    %% 配置文件
+    subgraph 配置文件
+        U[requirements.txt]
+        V[资质匹配系统.spec]
+    end
+```
+
+## 文件依赖关系说明
+
+### 数据层
+- **zivi_data.xlsx**：Excel格式的原始资质数据文件
+- **update_qualification_data.py**：从Excel文件更新资质数据到JSON文件的脚本
+- **qualification_data.json**：存储资质数据的JSON文件，被核心功能模块读取
+
+### 核心功能层
+- **fuzzy_search.py**：提供模糊搜索功能和资质数据加载功能
+  - 依赖：`qualification_data.json`
+- **qualification_matcher.py**：资质匹配的核心逻辑，负责合并计算所需职称数量
+  - 依赖：`qualification_data.json`、`fuzzy_search.py`
+
+### 应用层
+- **app.py**：Flask Web应用的主入口，提供API接口和页面渲染
+  - 依赖：`fuzzy_search.py`、`qualification_matcher.py`
+- **templates/index.html**：主页面模板
+  - 依赖：`app.py`
+- **templates/verify.html**：资质验证页面模板
+  - 依赖：`app.py`
+
+### 测试层
+- **多个测试文件**：用于测试不同场景下的资质匹配算法
+  - 依赖：`qualification_matcher.py`、`fuzzy_search.py`
+
+### 辅助工具
+- **check_quals.py**：检查资质的辅助脚本
+- **explain_5_qualifications.py**：解释5个资质的辅助脚本
+- **first_do.py**：初始执行脚本
+
+### 配置文件
+- **requirements.txt**：项目依赖的Python包列表
+- **资质匹配系统.spec**：PyInstaller打包配置文件
+
+## 核心依赖关系
+
+1. **数据流向**：Excel数据 → Python脚本 → JSON数据 → 核心功能模块 → 应用层
+2. **核心调用链**：
+   - 前端页面 → app.py → fuzzy_search.py/qualification_matcher.py → qualification_data.json
+   - 测试文件 → qualification_matcher.py → fuzzy_search.py → qualification_data.json
+3. **数据更新链**：
+   - zivi_data.xlsx → update_qualification_data.py → qualification_data.json
+
+## 主要模块功能说明
+
+1. **fuzzy_search.py**：
+   - 加载资质数据
+   - 提供模糊搜索功能
+   - 计算字符串相似度（Jaccard相似度、Levenshtein距离）
+
+2. **qualification_matcher.py**：
+   - 计算单个资质所需职称数量
+   - 合并多个资质的职称要求
+   - 优化职称数量分配
+   - 验证并调整职称数量
+   - 计算总人数
+
+3. **app.py**：
+   - 提供Web界面
+   - 处理搜索请求
+   - 处理资质匹配请求
+   - 处理资质验证请求
+
+4. **update_qualification_data.py**：
+   - 从Excel文件读取资质数据
+   - 更新或添加资质到JSON文件
+   - 删除不再使用的资质
+
+## 技术栈
+
+- **后端**：Python 3.x, Flask
+- **数据处理**：pandas, json
+- **前端**：HTML, CSS, JavaScript, Bootstrap 5
+- **测试**：Python内置测试框架
+- **打包**：PyInstaller
+
+## 项目架构特点
+
+1. **分层设计**：数据层、核心功能层、应用层、测试层清晰分离
+2. **模块化设计**：功能模块化，便于维护和扩展
+3. **前后端分离**：前端通过API与后端交互
+4. **数据驱动**：所有资质数据存储在JSON文件中，便于更新和维护
+5. **全面测试**：提供了多种测试用例，覆盖不同场景
+
+## 扩展建议
+
+1. **数据库集成**：考虑使用数据库存储资质数据，提高数据管理效率
+2. **API文档**：添加API文档，便于前端开发和测试
+3. **用户认证**：添加用户认证功能，支持多用户使用
+4. **日志系统**：添加日志系统，便于调试和监控
+5. **自动化测试**：添加自动化测试流程，提高测试效率
+6. **CI/CD**：添加持续集成和持续部署流程，提高开发效率

@@ -1,0 +1,264 @@
+[
+  {
+    "name": "建筑总包二级",
+    "require_all_types": true,
+    "types": [
+      "结构",
+      "给排水",
+      "电气"
+    ],
+    "total_count": 6
+  },
+  {
+    "name": "市政总包二级",
+    "require_all_types": false,
+    "types": [
+      "道路与桥梁",
+      "给排水",
+      "结构",
+      "机电",
+      "燃气"
+    ],
+    "total_count": 8
+  },
+  {
+    "name": "机电总包二级",
+    "require_all_types": true,
+    "types": [
+      "暖通",
+      "给排水",
+      "电气",
+      "机械设备",
+      "焊接",
+      "自动化控制"
+    ],
+    "total_count": 10
+  },
+  {
+    "name": "电力总包二级",
+    "require_all_types": false,
+    "types": [
+      "热能动力工程",
+      "水能动力工程",
+      "核电工程",
+      "风电、太阳能及其他能源工程",
+      "输配电及用电工程",
+      "电力系统及其自动化"
+    ],
+    "total_count": 10
+  },
+  {
+    "name": "水利总包二级",
+    "require_all_types": false,
+    "types": [
+      "水利水电工程建筑",
+      "水利工程施工",
+      "农田水利工程",
+      "水电站动力设备",
+      "电力系统及自动化",
+      "水力学及河流动力学",
+      "水文与水资源",
+      "工程地质及水文地质",
+      "水利机械"
+    ],
+    "total_count": 10
+  },
+  {
+    "name": "公路总包二级",
+    "require_all_types": false,
+    "types": [
+      "公路工程",
+      "桥梁工程",
+      "公路与桥梁工程",
+      "交通土建",
+      "隧道（地下结构）工程",
+      "交通工程"
+    ],
+    "total_count": 15
+  },
+  {
+    "name": "冶金总包二级",
+    "require_all_types": true,
+    "types": [
+      "冶金工程（或金属治炼或金属材料或焦化或耐火材料或建筑材料）",
+      "结构",
+      "电气",
+      "给排水",
+      "动力",
+      "暖通",
+      "测量"
+    ],
+    "total_count": 15
+  },
+  {
+    "name": "矿山总包二级",
+    "require_all_types": true,
+    "types": [
+      "矿建",
+      "结构",
+      "机电",
+      "地质",
+      "测量",
+      "通风安全"
+    ],
+    "total_count": 10
+  },
+  {
+    "name": "石油总包二级",
+    "require_all_types": true,
+    "types": [
+      "石油化工",
+      "结构",
+      "电气",
+      "机械",
+      "自动控制"
+    ],
+    "total_count": 10
+  },
+  {
+    "name": "电子与智能化专业承包二级工程",
+    "require_all_types": true,
+    "types": [
+      "计算机",
+      "电子",
+      "通信",
+      "自动化",
+      "电气"
+    ],
+    "total_count": 10
+  },
+  {
+    "name": "防水防腐保温工程施工专业承包二级",
+    "require_all_types": true,
+    "types": [
+      "结构",
+      "材料",
+      "化工"
+    ],
+    "total_count": 3
+  },
+  {
+    "name": "建筑装饰装修工程施工专业承包二级",
+    "require_all_types": false,
+    "types": [
+      "建筑美术设计（建筑学、环境艺术、室内设计、装璜设计、舞美设计、工业设计、雕塑）",
+      "结构",
+      "暖通",
+      "给排水",
+      "电气"
+    ],
+    "total_count": 5
+  },
+  {
+    "name": "建筑幕墙工程施工专业承包二级",
+    "require_all_types": true,
+    "types": [
+      "结构",
+      "机械"
+    ],
+    "total_count": 6
+  },
+  {
+    "name": "消防设施工程施工专业承包二级",
+    "require_all_types": true,
+    "types": [
+      "暖通",
+      "给排水",
+      "电气",
+      "自动化"
+    ],
+    "total_count": 6
+  },
+  {
+    "name": "地基基础工程施工专业承包二级",
+    "require_all_types": true,
+    "types": [
+      "结构",
+      "岩土",
+      "机械"
+    ],
+    "total_count": 8
+  },
+  {
+    "name": "钢结构工程施工专业承包二级",
+    "require_all_types": false,
+    "types": [
+      "结构",
+      "机械",
+      "焊接"
+    ],
+    "total_count": 6
+  },
+  {
+    "name": "建筑机电安装工程施工专业承包二级",
+    "require_all_types": true,
+    "types": [
+      "暖通",
+      "给排水",
+      "电气",
+      "机械设备",
+      "焊接",
+      "自动化控制"
+    ],
+    "total_count": 6
+  },
+  {
+    "name": "城市及道路照明施工专业承包二级",
+    "require_all_types": true,
+    "types": [
+      "高压电工",
+      "低压电工",
+      "维修电工",
+      "安装电工"
+    ],
+    "total_count": 12
+  },
+  {
+    "name": "输变电工程施工专业承包二级",
+    "require_all_types": false,
+    "types": [
+      "热能动力工程",
+      "水能动力工程",
+      "核电工程",
+      "风电",
+      "太阳能及其它能源工程",
+      "输配电及用电工程",
+      "电力系统及其自动化"
+    ],
+    "total_count": 20
+  },
+  {
+    "name": "环保工程施工专业承包二级",
+    "require_all_types": false,
+    "types": [],
+    "total_count": 5
+  },
+  {
+    "name": "起重设备安装工程施工专业承包二级",
+    "require_all_types": true,
+    "types": [
+      "机械",
+      "电气"
+    ],
+    "total_count": 2
+  },
+  {
+    "name": "模板脚手架施工专业承包不分等级",
+    "require_all_types": false,
+    "types": [
+      "结构",
+      "机械",
+      "电气"
+    ],
+    "total_count": 5
+  },
+  {
+    "name": "古建筑工程施工专业承包二级",
+    "require_all_types": true,
+    "types": [
+      "结构",
+      "风景园林"
+    ],
+    "total_count": 3
+  }
+]

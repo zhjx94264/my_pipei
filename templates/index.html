@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资质职称匹配系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #165DFF;
+            --secondary-color: #36CFC9;
+            --danger-color: #F53F3F;
+            --success-color: #00B42A;
+            --light-gray: #F2F3F5;
+            --dark-gray: #4E5969;
+            --border-radius: 8px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #F7F8FA;
+            color: #1D2129;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin-top: 30px;
+            padding-bottom: 50px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 18px 24px;
+            border-bottom: none;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+        
+        h2, h5 {
+            font-weight: 600;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: calc(100% + 2px);
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #E5E6EB;
+            border-radius: var(--border-radius);
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transform-origin: top;
+            transform: scaleY(0);
+            opacity: 0;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.98);
+        }
+        
+        .search-results.active {
+            transform: scaleY(1);
+            opacity: 1;
+        }
+        
+        /* 滚动条样式 */
+        .search-results::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .search-results::-webkit-scrollbar-track {
+            background: #F1F3F4;
+            border-radius: 3px;
+        }
+        
+        .search-results::-webkit-scrollbar-thumb {
+            background: #C4C6CA;
+            border-radius: 3px;
+        }
+        
+        .search-results::-webkit-scrollbar-thumb:hover {
+            background: #A6A8AD;
+        }
+        
+        .search-result-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #F5F7FA;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: var(--primary-color);
+            transform: scaleY(0);
+            transition: transform 0.25s ease;
+        }
+        
+        .search-result-item:hover {
+            background-color: #F2F7FF;
+            color: var(--primary-color);
+            padding-left: 20px;
+            transform: translateX(4px);
+        }
+        
+        .search-result-item:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .search-result-item.highlighted {
+            background-color: #E8F3FF;
+            color: var(--primary-color);
+            padding-left: 20px;
+            font-weight: 500;
+        }
+        
+        .search-result-item.highlighted::before {
+            transform: scaleY(1);
+        }
+        
+        .search-result-item i {
+            margin-right: 10px;
+            opacity: 0.7;
+            font-size: 16px;
+            transition: opacity 0.25s ease;
+        }
+        
+        .search-result-item:hover i,
+        .search-result-item.highlighted i {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .selected-qualification {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #E8F3FF, #D6E8FF);
+            color: var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 25px;
+            margin: 6px 8px 6px 0;
+            font-size: 14px;
+            transition: var(--transition);
+            box-shadow: 0 3px 8px rgba(22, 93, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .selected-qualification::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .selected-qualification:hover::before {
+            left: 100%;
+        }
+        
+        .selected-qualification:hover {
+            background: linear-gradient(135deg, #D6E8FF, #BED7FF);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 16px rgba(22, 93, 255, 0.25);
+        }
+        
+        .remove-qualification {
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: rgba(22, 93, 255, 0.2);
+            transition: var(--transition);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        .remove-qualification:hover {
+            background-color: var(--danger-color);
+            color: white;
+            transform: rotate(90deg) scale(1.2);
+            box-shadow: 0 2px 6px rgba(245, 63, 63, 0.3);
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding-top: 24px;
+            border-top: 2px solid #F2F3F5;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-item {
+            padding: 16px 12px;
+            border-bottom: 1px solid #F2F3F5;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .result-item:hover {
+            background-color: #F7F8FF;
+            transform: translateX(8px);
+            box-shadow: -2px 0 12px rgba(22, 93, 255, 0.1);
+        }
+        
+        .result-item:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .type-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1D2129;
+        }
+        
+        .type-count {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 16px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .total-count {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--danger-color);
+            background: linear-gradient(135deg, var(--danger-color), #F77272);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .total-count i {
+            margin-right: 8px;
+            font-size: 22px;
+        }
+        
+        .loading {
+            display: none;
+            margin-left: 15px;
+            color: var(--primary-color);
+            font-weight: 500;
+            animation: pulse 1.5s infinite;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.6; transform: scale(0.95); }
+        }
+        
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 自定义背景色 */
+        .bg-light-danger {
+            background-color: #FFF2F3;
+            border-color: #FFE3E5;
+        }
+        
+        .bg-light-success {
+            background-color: #F0FDF4;
+            border-color: #D9F7E3;
+        }
+        
+        /* 自定义按钮颜色 */
+        .btn-light-danger {
+            background-color: #FFF2F3;
+            color: var(--danger-color);
+            border: 1px solid #FFE3E5;
+            box-shadow: 0 2px 4px rgba(245, 63, 63, 0.1);
+        }
+        
+        .btn-light-danger:hover {
+            background-color: #FFE3E5;
+            color: var(--danger-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 63, 63, 0.2);
+        }
+        
+        /* 自定义徽章颜色 */
+        .bg-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .bg-success {
+            background-color: var(--success-color);
+        }
+        
+        /* 按钮样式优化 */
+        .btn {
+            padding: 8px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #0E42D2);
+            box-shadow: 0 2px 8px rgba(22, 93, 255, 0.2);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0E42D2, #0A34A0);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(22, 93, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #F2F3F5, #E5E6EB);
+            color: var(--dark-gray);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #E5E6EB, #D6D8DB);
+            color: #1D2129;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, var(--secondary-color), #2DB9B2);
+            color: white;
+            box-shadow: 0 2px 8px rgba(54, 207, 201, 0.2);
+        }
+        
+        .btn-info:hover {
+            background: linear-gradient(135deg, #2DB9B2, #26A69A);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(54, 207, 201, 0.4);
+        }
+        
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 13px;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        .form-control {
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            border: 1px solid #E5E6EB;
+            transition: var(--transition);
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-size: 15px;
+            position: relative;
+        }
+        
+        .form-control::placeholder {
+            color: #909399;
+            transition: color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.15), 0 4px 12px rgba(22, 93, 255, 0.2);
+            outline: none;
+            transform: translateY(-1px);
+        }
+        
+        .form-control:focus::placeholder {
+            color: #C0C4CC;
+        }
+        
+        .form-control:hover {
+            border-color: #D6D8DB;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease-out;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #F2F3F5;
+            background: linear-gradient(135deg, #F7F8FA, #FFFFFF);
+        }
+        
+        .modal-body {
+            padding: 24px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 18px 24px;
+            border-top: 1px solid #F2F3F5;
+            background: linear-gradient(135deg, #FFFFFF, #F7F8FA);
+        }
+        
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .modal-body::-webkit-scrollbar-track {
+            background: #F1F3F4;
+            border-radius: 4px;
+        }
+        
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #C4C6CA;
+            border-radius: 4px;
+        }
+        
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #A6A8AD;
+        }
+        
+        .badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 500;
+            font-size: 12px;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .badge:hover::before {
+            left: 100%;
+        }
+        
+        .badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .list-unstyled li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .list-unstyled li::before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .section-title {
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #F2F3F5;
+        }
+        
+        .info-box {
+            background-color: #F7F8FF;
+            border-left: 3px solid var(--primary-color);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0 d-flex align-items-center">
+                    <i class="bi bi-puzzle-fill me-2"></i>资质职称匹配查询系统
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="mb-4 info-box">
+                    <h5 class="mb-2">使用说明：</h5>
+                    <ul class="list-unstyled">
+                        <li>在输入框中输入资质名称，支持模糊搜索（如"建筑二"可匹配"建筑总包二级"）</li>
+                        <li>点击搜索结果添加资质，或使用上下方向键选择后按回车键</li>
+                        <li>可添加多个资质，系统会自动计算最优职称数量</li>
+                        <li>系统会优先考虑重复职称，节约整体数量</li>
+                    </ul>
+                </div>
+            
+                <div class="mb-5">
+                    <h5 class="section-title">选择资质：</h5>
+                    <div class="search-container">
+                        <input type="text" id="search-input" class="form-control" placeholder="输入资质名称（如：建筑二、市政二）" autocomplete="off">
+                        <div class="search-results" id="search-results"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-5">
+                    <h5 class="section-title">已选择的资质：</h5>
+                    <div id="selected-qualifications" class="flex-wrap d-flex"></div>
+                </div>
+                
+                <div class="mb-4">
+                    <button id="calculate-btn" class="btn btn-primary btn-lg">
+                        <i class="bi bi-calculator" id="calculate-icon"></i>
+                        <i class="bi bi-hourglass-split" id="loading-icon" style="display: none; animation: spin 1s linear infinite;"></i>
+                        <span id="calculate-text">计算所需职称数量</span>
+                    </button>
+                    <button id="clear-btn" class="btn btn-light-danger btn-lg ms-2">
+                        <i class="bi bi-trash"></i>清空已选资质名称
+                    </button>
+                    <button id="verify-btn" class="btn btn-info btn-lg ms-2" onclick="window.open('/verify', '_blank')">
+                        <i class="bi bi-check-circle"></i>验证资质匹配
+                    </button>
+                </div>
+                
+                <div class="result-section" id="result-section" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="section-title">匹配结果：</h5>
+                        <button id="view-requirements-btn" class="btn btn-info">
+                            <i class="bi bi-list-ul"></i>查看资质要求
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <strong>匹配到的资质：</strong>
+                        <div id="matched-qualifications" class="mt-2"></div>
+                    </div>
+                    
+                    <h5 class="section-title">所需职称数量：</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="result-list"></div>
+                            <div class="mt-4 text-end">
+                                <span class="total-count">总人数：<span id="total-staff">0</span> 人</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 资质要求详情模态框 -->
+                    <div class="modal fade" id="requirements-modal" tabindex="-1" aria-labelledby="requirements-modal-label" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="requirements-modal-label">资质要求详情</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- 颜色使用说明 -->
+                                    <div class="mb-4 p-3 bg-info bg-opacity-10 border border-info rounded">
+                                        <h6>颜色说明：</h6>
+                                        <div class="d-flex align-items-center flex-wrap">
+                                            <div class="me-4 mb-2">
+                                                <div class="d-inline-block p-2 bg-light-danger border border-danger rounded me-2"></div>
+                                                <span><strong>淡红色背景</strong>：要求职称类型齐全</span>
+                                            </div>
+                                            <div class="mb-2">
+                                                <div class="d-inline-block p-2 bg-light-success border border-success rounded me-2"></div>
+                                                <span><strong>淡绿色背景</strong>：不要求职称类型齐全</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 资质要求详情将动态加载到这里 -->
+                                    <div id="requirements-body"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 所有资质数据模态框 -->
+                    <div class="modal fade" id="all-qualifications-modal" tabindex="-1" aria-labelledby="all-qualifications-modal-label" aria-hidden="true">
+                        <div class="modal-dialog modal-xl">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="all-qualifications-modal-label">所有资质数据信息</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- 颜色使用说明 -->
+                                    <div class="mb-4 p-3 bg-info bg-opacity-10 border border-info rounded">
+                                        <h6>颜色说明：</h6>
+                                        <div class="d-flex align-items-center flex-wrap">
+                                            <div class="me-4 mb-2">
+                                                <div class="d-inline-block p-2 bg-light-danger border border-danger rounded me-2"></div>
+                                                <span><strong>淡红色背景</strong>：要求职称类型齐全</span>
+                                            </div>
+                                            <div class="mb-2">
+                                                <div class="d-inline-block p-2 bg-light-success border border-success rounded me-2"></div>
+                                                <span><strong>淡绿色背景</strong>：不要求职称类型齐全</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 所有资质数据将动态加载到这里 -->
+                                    <div id="all-qualifications-body"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 职称出现资质模态框 -->
+                    <div class="modal fade" id="title-qualifications-modal" tabindex="-1" aria-labelledby="title-qualifications-modal-label" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="title-qualifications-modal-label">职称出现的资质</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- 颜色使用说明 -->
+                                    <div class="mb-4 p-3 bg-info bg-opacity-10 border border-info rounded">
+                                        <h6>颜色说明：</h6>
+                                        <div class="d-flex align-items-center flex-wrap">
+                                            <div class="me-4 mb-2">
+                                                <div class="d-inline-block p-2 bg-light-danger border border-danger rounded me-2"></div>
+                                                <span><strong>淡红色标签</strong>：要求职称类型齐全</span>
+                                            </div>
+                                            <div class="mb-2">
+                                                <div class="d-inline-block p-2 bg-light-success border border-success rounded me-2"></div>
+                                                <span><strong>淡绿色标签</strong>：不要求职称类型齐全</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 职称出现的资质将动态加载到这里 -->
+                                    <div id="title-qualifications-body"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // 从后端直接获取的资质数据
+        const qualificationData = {{ qualification_data | tojson }};
+        
+        // 已选择的资质列表
+        let selectedQualifications = [];
+        
+        // 搜索输入事件
+        let currentSelectedIndex = -1;
+        let searchResults = [];
+        
+        // 显示搜索结果的函数
+        function showSearchResults() {
+            const input = document.getElementById('search-input');
+            const query = input.value.trim();
+            const resultsContainer = document.getElementById('search-results');
+            
+            // 显示搜索结果容器
+            resultsContainer.classList.add('active');
+            
+            // 获取所有资质名称
+            const allQualificationNames = qualificationData.map(qual => qual.name);
+            
+            if (query.length < 1) {
+                // 没有输入时显示所有资质名称
+                renderSearchResults(allQualificationNames);
+            } else {
+                // 有输入时发送搜索请求
+                fetch(`/api/search?q=${encodeURIComponent(query)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(results => {
+                        renderSearchResults(results);
+                    })
+                    .catch(error => {
+                        console.error('搜索请求失败:', error);
+                        resultsContainer.innerHTML = '';
+                        resultsContainer.classList.remove('active');
+                        searchResults = [];
+                    });
+            }
+        }
+        
+        // 输入事件
+        document.getElementById('search-input').addEventListener('input', function() {
+            currentSelectedIndex = -1;
+            showSearchResults();
+        });
+        
+        // 获得焦点事件
+        document.getElementById('search-input').addEventListener('focus', function() {
+            currentSelectedIndex = -1;
+            showSearchResults();
+        });
+        
+        // 点击输入框区域事件（解决点击输入框后显示所有资质）
+        document.getElementById('search-input').addEventListener('click', function() {
+            currentSelectedIndex = -1;
+            showSearchResults();
+        });
+        
+        // 渲染搜索结果
+        function renderSearchResults(results) {
+            const resultsContainer = document.getElementById('search-results');
+            resultsContainer.innerHTML = '';
+            searchResults = [];
+            
+            // 过滤掉已选择的资质
+            const filteredResults = results.filter(result => !selectedQualifications.includes(result));
+            
+            if (filteredResults.length === 0) {
+                // 没有结果时隐藏搜索结果容器
+                resultsContainer.classList.remove('active');
+            } else {
+                // 有结果时显示搜索结果容器
+                resultsContainer.classList.add('active');
+                
+                filteredResults.forEach(result => {
+                    searchResults.push(result);
+                    const div = document.createElement('div');
+                    div.className = 'search-result-item';
+                    div.innerHTML = `<i class="bi bi-clipboard-data"></i>${result}`;
+                    div.addEventListener('click', function() {
+                        addQualification(result);
+                        document.getElementById('search-input').value = '';
+                        resultsContainer.innerHTML = '';
+                        resultsContainer.classList.remove('active');
+                        searchResults = [];
+                        currentSelectedIndex = -1;
+                    });
+                    resultsContainer.appendChild(div);
+                });
+                
+                // 默认选中第一个匹配结果
+                if (searchResults.length > 0) {
+                    currentSelectedIndex = 0;
+                    const resultItems = resultsContainer.querySelectorAll('.search-result-item');
+                    updateSelectedItem(resultItems);
+                }
+            }
+        }
+        
+        // 键盘事件处理
+        document.getElementById('search-input').addEventListener('keydown', function(e) {
+            const resultsContainer = document.getElementById('search-results');
+            const resultItems = resultsContainer.querySelectorAll('.search-result-item');
+            
+            if (e.key === 'ArrowDown') {
+                // 向下箭头
+                e.preventDefault();
+                currentSelectedIndex = (currentSelectedIndex + 1) % searchResults.length;
+                updateSelectedItem(resultItems);
+            } else if (e.key === 'ArrowUp') {
+                // 向上箭头
+                e.preventDefault();
+                currentSelectedIndex = (currentSelectedIndex - 1 + searchResults.length) % searchResults.length;
+                updateSelectedItem(resultItems);
+            } else if (e.key === 'Enter' || e.key === '=') {
+                // 回车键或等号键
+                e.preventDefault();
+                if (currentSelectedIndex >= 0 && currentSelectedIndex < searchResults.length) {
+                    // 如果有选中的搜索结果，先添加资质
+                    const selectedResult = searchResults[currentSelectedIndex];
+                    addQualification(selectedResult);
+                    document.getElementById('search-input').value = '';
+                    resultsContainer.innerHTML = '';
+                    resultsContainer.classList.remove('active');
+                    searchResults = [];
+                    currentSelectedIndex = -1;
+                    
+                    // 添加资质后自动触发计算
+                    document.getElementById('calculate-btn').click();
+                } else if (selectedQualifications.length > 0) {
+                    // 如果没有选中的搜索结果但已经选择了资质，直接触发计算
+                    document.getElementById('calculate-btn').click();
+                }
+            }
+        });
+        
+        // 更新选中项的高亮显示
+        function updateSelectedItem(resultItems) {
+            // 移除所有高亮
+            resultItems.forEach(item => {
+                item.classList.remove('highlighted');
+                item.style.backgroundColor = '';
+                item.style.color = '';
+            });
+            
+            // 高亮当前选中项
+            if (currentSelectedIndex >= 0 && currentSelectedIndex < resultItems.length) {
+                const selectedItem = resultItems[currentSelectedIndex];
+                selectedItem.classList.add('highlighted');
+                
+                // 滚动到可见区域
+                selectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        
+        // 添加资质
+        function addQualification(qualification) {
+            if (!selectedQualifications.includes(qualification)) {
+                selectedQualifications.push(qualification);
+                renderSelectedQualifications();
+                
+                // 添加动画效果
+                const element = document.querySelector(`[data-qual="${qualification}"]`);
+                if (element) {
+                    element.animate([
+                        { transform: 'scale(0.8)', opacity: 0 },
+                        { transform: 'scale(1)', opacity: 1 }
+                    ], {
+                        duration: 300,
+                        easing: 'ease-out'
+                    });
+                }
+            }
+        }
+        
+        // 移除资质
+        function removeQualification(qualification) {
+            const index = selectedQualifications.indexOf(qualification);
+            if (index !== -1) {
+                // 获取要删除的元素并添加淡出动画
+                const element = document.querySelector(`[data-qual="${qualification}"]`);
+                if (element) {
+                    element.animate([
+                        { transform: 'scale(1)', opacity: 1 },
+                        { transform: 'scale(0.8)', opacity: 0 }
+                    ], {
+                        duration: 200,
+                        easing: 'ease-in'
+                    }).onfinish = () => {
+                        selectedQualifications = selectedQualifications.filter(q => q !== qualification);
+                        renderSelectedQualifications();
+                    };
+                } else {
+                    selectedQualifications = selectedQualifications.filter(q => q !== qualification);
+                    renderSelectedQualifications();
+                }
+            }
+        }
+        
+        // 渲染已选择的资质
+        function renderSelectedQualifications() {
+            const container = document.getElementById('selected-qualifications');
+            container.innerHTML = '';
+            
+            if (selectedQualifications.length === 0) {
+                container.innerHTML = '<div class="text-muted"><i class="bi bi-info-circle me-1"></i>尚未选择任何资质</div>';
+                return;
+            }
+            
+            selectedQualifications.forEach(qualification => {
+                const div = document.createElement('div');
+                div.className = 'selected-qualification';
+                div.setAttribute('data-qual', qualification);
+                div.innerHTML = `${qualification} <span class="remove-qualification">&times;</span>`;
+                div.querySelector('.remove-qualification').addEventListener('click', () => {
+                    removeQualification(qualification);
+                });
+                container.appendChild(div);
+            });
+        }
+        
+        // 计算按钮点击事件
+        document.getElementById('calculate-btn').addEventListener('click', function() {
+            if (selectedQualifications.length === 0) {
+                // 显示更友好的提示
+                const input = document.getElementById('search-input');
+                input.classList.add('border-danger');
+                input.animate([
+                    { transform: 'translateX(0)' },
+                    { transform: 'translateX(5px)' },
+                    { transform: 'translateX(-5px)' },
+                    { transform: 'translateX(0)' }
+                ], {
+                    duration: 500
+                });
+                
+                setTimeout(() => {
+                    input.classList.remove('border-danger');
+                }, 2000);
+                
+                return;
+            }
+            
+            // 显示加载状态 - 切换图标
+            document.getElementById('calculate-icon').style.display = 'none';
+            document.getElementById('loading-icon').style.display = 'inline-block';
+            document.getElementById('calculate-text').textContent = '正在计算...';
+            document.getElementById('calculate-btn').disabled = true;
+            
+            // 发送计算请求
+            fetch('/api/match', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    qualifications: selectedQualifications
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 隐藏加载状态 - 恢复图标
+                document.getElementById('calculate-icon').style.display = 'inline-block';
+                document.getElementById('loading-icon').style.display = 'none';
+                document.getElementById('calculate-text').textContent = '计算所需职称数量';
+                document.getElementById('calculate-btn').disabled = false;
+                
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                // 显示结果
+                renderResults(data);
+            })
+            .catch(error => {
+                // 隐藏加载状态 - 恢复图标
+                document.getElementById('calculate-icon').style.display = 'inline-block';
+                document.getElementById('loading-icon').style.display = 'none';
+                document.getElementById('calculate-text').textContent = '计算所需职称数量';
+                document.getElementById('calculate-btn').disabled = false;
+                
+                alert('计算出错，请重试');
+                console.error(error);
+            });
+        });
+        
+        // 保存匹配到的资质详情，用于查看要求
+        let matchedQualificationsDetails = [];
+        
+        // 渲染结果
+        function renderResults(data) {
+            // 保存匹配到的资质详情
+            if (data.matched_qualifications_details) {
+                matchedQualificationsDetails = data.matched_qualifications_details;
+            }
+            
+            // 显示结果区域
+            document.getElementById('result-section').style.display = 'block';
+            
+            // 渲染匹配到的资质
+            const matchedContainer = document.getElementById('matched-qualifications');
+            matchedContainer.innerHTML = data.matched_qualifications.map(q => 
+                `<button class="btn btn-primary btn-sm m-1" disabled>
+                    <i class="bi bi-check-circle me-1"></i>${q}
+                </button>`
+            ).join('');
+            
+            // 渲染职称数量
+            const resultList = document.getElementById('result-list');
+            resultList.innerHTML = '';
+            
+            // 按职称类型排序
+            const sortedTypes = Object.entries(data.final_counts).sort();
+            
+            // 渲染颜色使用说明
+            const colorGuideHtml = `
+                <div class="mb-3 p-3 bg-info bg-opacity-10 border border-info rounded">
+                    <h6>颜色说明：</h6>
+                    <div class="d-flex align-items-center flex-wrap">
+                        <div class="me-4 mb-2">
+                            <div class="d-inline-block p-2 bg-light-danger border border-danger rounded me-2"></div>
+                            <span><strong>淡红色背景</strong>：有职称类型齐全要求或为共享职称</span>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-inline-block p-2 bg-light-success border border-success rounded me-2"></div>
+                            <span><strong>淡绿色背景</strong>：仅出现在无职称类型齐全要求的资质中</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 添加颜色说明到结果列表
+            resultList.innerHTML += colorGuideHtml;
+            
+            sortedTypes.forEach(([type, count], index) => {
+                const div = document.createElement('div');
+                // 根据type_attributes决定背景颜色
+                const isRed = data.type_attributes && data.type_attributes[type] ? data.type_attributes[type].is_red : false;
+                const bgColor = isRed ? 'bg-light-danger' : 'bg-light-success';
+                div.className = `result-item ${bgColor} border`;
+                div.style.animationDelay = `${index * 50}ms`;
+                div.style.opacity = '0';
+                div.style.transform = 'translateY(10px)';
+                div.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <span class="type-name" style="cursor: pointer; text-decoration: underline; color: var(--primary-color);">${type}</span>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="type-count">${count} 人</span>
+                        </div>
+                    </div>
+                `;
+                resultList.appendChild(div);
+                
+                // 添加点击事件
+                const typeNameElement = div.querySelector('.type-name');
+                typeNameElement.addEventListener('click', () => {
+                    showTitleQualifications(type);
+                });
+                
+                // 添加动画
+                setTimeout(() => {
+                    div.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    div.style.opacity = '1';
+                    div.style.transform = 'translateY(0)';
+                }, 50);
+            });
+            
+            // 渲染总人数并添加动画
+            const totalStaff = document.getElementById('total-staff');
+            totalStaff.textContent = '0';
+            let current = 0;
+            const target = data.total_staff;
+            const interval = setInterval(() => {
+                current += Math.ceil(target / 20);
+                if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                }
+                totalStaff.textContent = current;
+            }, 50);
+        }
+        
+        // 查看资质要求按钮点击事件
+        document.getElementById('view-requirements-btn').addEventListener('click', function() {
+            if (matchedQualificationsDetails.length === 0) {
+                alert('请先计算所需职称数量');
+                return;
+            }
+            
+            // 渲染资质要求详情
+            const requirementsBody = document.getElementById('requirements-body');
+            let html = '';
+            
+            matchedQualificationsDetails.forEach((qual, index) => {
+                // 根据是否要求齐全设置不同的背景颜色
+                const bgColor = qual.require_all_types ? 'bg-light-danger' : 'bg-light-success';
+                const badgeColor = qual.require_all_types ? 'bg-danger' : 'bg-success';
+                
+                html += `
+                    <div class="mb-4 p-3 border rounded ${bgColor}" style="animation-delay: ${index * 100}ms; opacity: 0; transform: translateY(10px);">
+                        <h5 class="mb-2">${qual.name}</h5>
+                        <div class="mb-2">
+                            <strong>是否要求职称类型齐全：</strong>
+                            <span class="font-weight-bold">${qual.require_all_types ? '是' : '否'}</span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>所需职称数量：</strong>
+                            <span>${qual.total_count} 人</span>
+                        </div>
+                        <div>
+                            <strong>所需职称类型：</strong>
+                            <div class="mt-2">
+                                ${qual.types.map(type => `<span class="badge ${badgeColor} m-1">${type}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            requirementsBody.innerHTML = html;
+            
+            // 显示模态框并添加动画
+            const requirementsModal = new bootstrap.Modal(document.getElementById('requirements-modal'));
+            requirementsModal.show();
+            
+            // 触发动画
+            setTimeout(() => {
+                const items = requirementsBody.querySelectorAll('.mb-4');
+                items.forEach(item => {
+                    item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                });
+            }, 100);
+        });
+        
+        // 清空按钮点击事件
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            // 添加淡出动画
+            const selectedContainer = document.getElementById('selected-qualifications');
+            selectedContainer.animate([
+                { opacity: 1 },
+                { opacity: 0 }
+            ], {
+                duration: 200
+            }).onfinish = () => {
+                selectedQualifications = [];
+                renderSelectedQualifications();
+                document.getElementById('result-section').style.display = 'none';
+                
+                // 淡入动画
+                selectedContainer.animate([
+                    { opacity: 0 },
+                    { opacity: 1 }
+                ], {
+                    duration: 200
+                });
+            };
+        });
+        
+        // 点击页面其他地方关闭搜索结果
+        document.addEventListener('click', function(e) {
+            const searchContainer = document.querySelector('.search-container');
+            if (!searchContainer.contains(e.target)) {
+                const resultsContainer = document.getElementById('search-results');
+                resultsContainer.innerHTML = '';
+                resultsContainer.classList.remove('active');
+            }
+        });
+        
+        // 初始化已选资质区域
+        renderSelectedQualifications();
+        
+        // 显示职称出现的资质
+        function showTitleQualifications(titleName) {
+            // 查找包含该职称的所有资质
+            const relatedQualifications = qualificationData.filter(qual => {
+                return qual.types && qual.types.includes(titleName);
+            });
+            
+            // 分离用户选择的资质和其他资质
+            const userSelectedQualifications = relatedQualifications.filter(qual => {
+                return selectedQualifications.includes(qual.name);
+            });
+            
+            const otherQualifications = relatedQualifications.filter(qual => {
+                return !selectedQualifications.includes(qual.name);
+            });
+            
+            // 合并资质，用户选择的资质排在前面
+            const sortedQualifications = [...userSelectedQualifications, ...otherQualifications];
+            
+            // 渲染职称出现的资质
+            const titleQualificationsBody = document.getElementById('title-qualifications-body');
+            let html = '';
+            
+            if (sortedQualifications.length === 0) {
+                html = '<div class="text-center text-muted py-5"><i class="bi bi-info-circle me-2"></i>该职称未出现在任何资质要求中</div>';
+            } else {
+                html += `<h5 class="mb-3">"${titleName}" 职称出现在以下 ${sortedQualifications.length} 个资质中：</h5>`;
+                html += '<div class="row row-cols-1 g-3">';
+                
+                // 渲染用户选择的资质
+                if (userSelectedQualifications.length > 0) {
+                    userSelectedQualifications.forEach((qual, index) => {
+                        // 根据是否要求齐全设置不同的标签颜色
+                        const badgeColor = qual.require_all_types ? 'bg-danger' : 'bg-success';
+                        const bgColor = qual.require_all_types ? 'bg-light-danger' : 'bg-light-success';
+                        
+                        html += `
+                            <div class="col">
+                                <div class="p-3 border rounded ${bgColor}" style="animation-delay: ${index * 100}ms; opacity: 0; transform: translateY(10px);">
+                                    <h6 class="mb-2">${qual.name}</h6>
+                                    <div class="mb-2">
+                                        <strong>是否要求职称类型齐全：</strong>
+                                        <span class="font-weight-bold">${qual.require_all_types ? '是' : '否'}</span>
+                                    </div>
+                                    <div>
+                                        <strong>所需职称数量：</strong>
+                                        <span>${qual.total_count} 人</span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>所需职称类型：</strong>
+                                        <div class="mt-1">
+                                            ${qual.types.map(type => `<span class="badge ${badgeColor} m-1">${type}</span>`).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // 添加分隔线
+                if (userSelectedQualifications.length > 0 && otherQualifications.length > 0) {
+                    html += `
+                        <div class="col">
+                            <div class="p-2 text-center text-muted">
+                                <hr class="my-2">
+                                <span class="fw-bold">其他包含该职称的资质</span>
+                                <hr class="my-2">
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // 渲染其他资质
+                if (otherQualifications.length > 0) {
+                    otherQualifications.forEach((qual, index) => {
+                        // 根据是否要求齐全设置不同的标签颜色
+                        const badgeColor = qual.require_all_types ? 'bg-danger' : 'bg-success';
+                        const bgColor = qual.require_all_types ? 'bg-light-danger' : 'bg-light-success';
+                        
+                        html += `
+                            <div class="col">
+                                <div class="p-3 border rounded ${bgColor}" style="animation-delay: ${(userSelectedQualifications.length + index) * 100}ms; opacity: 0; transform: translateY(10px);">
+                                    <h6 class="mb-2">${qual.name}</h6>
+                                    <div class="mb-2">
+                                        <strong>是否要求职称类型齐全：</strong>
+                                        <span class="font-weight-bold">${qual.require_all_types ? '是' : '否'}</span>
+                                    </div>
+                                    <div>
+                                        <strong>所需职称数量：</strong>
+                                        <span>${qual.total_count} 人</span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>所需职称类型：</strong>
+                                        <div class="mt-1">
+                                            ${qual.types.map(type => `<span class="badge ${badgeColor} m-1">${type}</span>`).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                html += '</div>';
+            }
+            
+            titleQualificationsBody.innerHTML = html;
+            
+            // 显示模态框并添加动画
+            const titleQualificationsModal = new bootstrap.Modal(document.getElementById('title-qualifications-modal'));
+            titleQualificationsModal.show();
+            
+            // 更新模态框标题
+            document.getElementById('title-qualifications-modal-label').textContent = `${titleName} 职称出现的资质`;
+            
+            // 触发动画
+            setTimeout(() => {
+                const items = titleQualificationsBody.querySelectorAll('.p-3');
+                items.forEach(item => {
+                    item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                });
+            }, 100);
+        }
+    </script>
+</body>
+</html>
