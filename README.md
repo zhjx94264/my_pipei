@@ -23,11 +23,11 @@ Here are some ideas to get you started:
 ## 文件结构
 ```
 dp_new/
-├── app.py                  # Flask应用，与现有项目兼容
+├── app.py                       # Flask应用，与现有项目兼容
 ├── dp_qualification_matcher.py  # 动态规划匹配算法实现
-├── fuzzy_search.py         # 模糊搜索功能
-├── test_dp_algorithm.py    # 测试文件
-└── README.md               # 本说明文件
+├── fuzzy_search.py              # 模糊搜索功能
+├── test_dp_algorithm.py         # 测试文件
+└── README.md                    # 本说明文件
 ```
 
 ## 主要功能
